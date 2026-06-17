@@ -1,7 +1,6 @@
 import re
 import json
-import os
-from typing import Dict,Any,Optional
+from typing import Dict,Any
 
 class AuditParser:
 
@@ -25,24 +24,34 @@ class AuditParser:
             audit_record["timestamp"] = audit_match.group(1)
             audit_record["serial"] = audit_match.group(2)
 
-        tokens = line.split()
+        field_pattern=re.compile(r'(\w+)=(".*?"|\'.*?\'|\S+)')
 
-        for token in tokens:
-            if"=" not in token:
+        for key, value in field_pattern.findall(line):
+            if key in("type","msg"):
                 continue
-            key,value = token.split("=",1)
+            audit_record["fields"][key]=self.__strip_quotes(value)
 
-            if key in ["type","msg"]:
-                continue
-
-            audit_record["fields"][key]=value
+        nested_match = re.search(r"msg='([^']*)'",line)
+        if nested_match:
+            for key,value in field_pattern.findall(nested_match.group(1)):
+                audit_record["fields"][key]=self.__strip_quotes(value)
         return audit_record
 
+    @staticmethod
 
-parser = AuditParser()
+    def __strip_quotes(value:str)->str:
+        if len(value)>=2 and value[0] == value[-1] and value[0] in ('"',"'"):
+            return value[1:-1]
+        return value
 
-with open("samples/output.txt") as f:
-    for line in f:
-        if line.strip():
-            record = parser.parse_line(line)
-            print(json.dumps(record,indent=4))
+
+if __name__ == "__main__":
+
+    parser = AuditParser()
+
+    with open("samples/output.txt") as f:
+        for line in f:
+            if line.strip():
+                record = parser.parse_line(line)
+                print(json.dumps(record,indent=4))
+
