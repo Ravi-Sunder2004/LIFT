@@ -1,6 +1,7 @@
 import json
 from parser import AuditParser
 from field_registry import FIELD_CATEGORIES
+from event_reconstructor import EventReconstructor
 
 #function called process record with self and record as inputs
 
@@ -43,7 +44,14 @@ class EventAssembler:
             for key,value in fields.items():
                 for category,known_fields in FIELD_CATEGORIES.items():
                     if key in known_fields:
-                        categorized[category][key]=value
+                        if category == "filesystem" and key == "name":
+                            if "paths" not in categorized["filesystem"]:
+                                categorized["filesystem"]["paths"] = []
+                            categorized["filesystem"]["paths"].append(value)
+
+                        else:
+                            categorized[category][key] = value
+
         return categorized
 
 
@@ -54,6 +62,7 @@ if __name__=="__main__":
 
     assembler=EventAssembler()
     parser = AuditParser()
+    reconstructor=EventReconstructor()
 
     with open("samples/output.txt","r") as file:
 
@@ -71,10 +80,12 @@ if __name__=="__main__":
         print(f"\n===== EVENT {serial} =====")
 
         categorized = assembler.categorize_fields(records)
+        timestamp = records[0]["timestamp"]
+        logical_event = reconstructor.reconstruct(serial,timestamp,categorized)
 
         print(
             json.dumps(
-            categorized,
+            logical_event,
             indent=4
             )
         )

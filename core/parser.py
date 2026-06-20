@@ -17,8 +17,10 @@ class AuditParser:
 
         if record_match:
             audit_record["record_type"]=record_match.group(1)
-
-        audit_match=re.search(r"msg=audit\((.*):(\d+)\)",line)
+        audit_match=re.search(
+            r"msg=audit\((.*?):(\d+)\)",
+            line
+            )
         if audit_match:
 
             audit_record["timestamp"] = audit_match.group(1)
