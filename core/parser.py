@@ -2,17 +2,18 @@ import re
 import json
 from typing import Dict,Any
 
+# A class that handles parsing of the provided audit file
 class AuditParser:
-
+    # python method with input parameter as a single line string, the output is a dictionary with the key being a string and value can be any data type 
     def parse_line(self,line:str)->Dict[str,Any]:
-
+         # defined a template for the dictionary
         audit_record={
             "record_type":None,
             "serial":None,
             "timestamp":None,
             "fields":{}
         }
-
+        #regex used for finding, extracting and passing its values to the ditionary
         record_match = re.search(r"type=(\w+)",line)
 
         if record_match:
@@ -40,13 +41,13 @@ class AuditParser:
         return audit_record
 
     @staticmethod
-
+# function to remove quotations while storing it
     def __strip_quotes(value:str)->str:
         if len(value)>=2 and value[0] == value[-1] and value[0] in ('"',"'"):
             return value[1:-1]
         return value
 
-
+#  main function
 if __name__ == "__main__":
 
     parser = AuditParser()
