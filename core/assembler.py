@@ -3,7 +3,7 @@ from core.field_registry import FIELD_CATEGORIES
 from core.event_reconstructor import EventReconstructor
 from core.session import SessionTracker
 
-#function called process record with self and record as inputs
+
 
 #check if serial has none value
 #get serial using record.get
@@ -15,20 +15,20 @@ class EventAssembler:
 #a constructor creating a dictionary called logical_Events
     def __init__(self):
         self.logical_events={}
-
+#function called process record with self and record as inputs
     def process_record(self, record):
-
+    #extracting the serial number from the audit record
         serial = record.get("serial")
-
+    #if there is no serial number associated with the record just return none
         if serial is None:
             return
-
+    #if the particular serial number is not present in the logical events list, then we are adding it
         if serial not in self.logical_events:
             self.logical_events[serial] = []
 
         self.logical_events[serial].append(record)
 
-
+# a reconstructing method that categorizes the parsed records based on identity,process,session and filesystem artifacts
     def categorize_fields(self,records):
         categorized = {
 
@@ -37,7 +37,7 @@ class EventAssembler:
         "session":{},
         "filesystem":{}
         }
-
+        
         for record in records:
             fields = record.get("fields",{})
 
