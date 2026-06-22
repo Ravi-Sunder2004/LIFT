@@ -1,7 +1,7 @@
-import json
-from parser import AuditParser
-from field_registry import FIELD_CATEGORIES
-from event_reconstructor import EventReconstructor
+from core.parser import AuditParser
+from core.field_registry import FIELD_CATEGORIES
+from core.event_reconstructor import EventReconstructor
+from core.session import SessionTracker
 
 #function called process record with self and record as inputs
 
@@ -54,40 +54,3 @@ class EventAssembler:
 
         return categorized
 
-
-
-  #main function
-
-if __name__=="__main__":
-
-    assembler=EventAssembler()
-    parser = AuditParser()
-    reconstructor=EventReconstructor()
-
-    with open("samples/output.txt","r") as file:
-
-        for line in file:
-
-            if not line.strip():
-                continue
-
-            record = parser.parse_line(line)
-
-            assembler.process_record(record)
-    
-    for serial, records in assembler.logical_events.items():
-
-        print(f"\n===== EVENT {serial} =====")
-
-        categorized = assembler.categorize_fields(records)
-        timestamp = records[0]["timestamp"]
-        logical_event = reconstructor.reconstruct(serial,timestamp,categorized)
-
-        print(
-            json.dumps(
-            logical_event,
-            indent=4
-            )
-        )
-
-        break
