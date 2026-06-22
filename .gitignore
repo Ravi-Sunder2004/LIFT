@@ -6,6 +6,8 @@ __pycache__/
 # Generated outputs
 parsed.json
 core/session_state.json
+samples/output.json
+samples/attack_replay.log
 
 # IDEs
 .vscode/
